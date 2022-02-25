@@ -18,6 +18,14 @@ public class BeaconController : MonoBehaviour
     Dictionary<string, Beacon> beaconsDict = new Dictionary<string, Beacon>();
     Beacon nearestBeacon;
 
+    public int capacity = 10;
+    Queue<Beacon> beaconsQueue; //Use to calculate beacon detection accuracy
+
+    private void Start()
+    {
+        beaconsQueue = new Queue<Beacon>(capacity);
+    }
+
     /// <summary>
     /// Enable Bluetooth and starts looking for beacons
     /// </summary>
@@ -59,7 +67,7 @@ public class BeaconController : MonoBehaviour
         // Update beacons info dictionary
         foreach (Beacon beacon in beacons)
         {
-            if(beaconsDict.ContainsKey(beacon.regionName))
+            if (beaconsDict.ContainsKey(beacon.regionName))
             {
                 beaconsDict[beacon.regionName] = beacon;
             }
@@ -84,20 +92,56 @@ public class BeaconController : MonoBehaviour
 
         //    beaconsInfoText.text = beaconsInfoUpdate;
         //}
-        
+
 
         Beacon newNearestBeacon = beaconsDict
-            .Where(b => b.Value.accuracy>=0) // On iOS, negative accuracy means that the beacon is not detected
+            .Where(b => b.Value.accuracy >= 0) // On iOS, negative accuracy means that the beacon is not detected
             .ToDictionary(i => i.Key, i => i.Value)
             .Aggregate((l, r) => l.Value.accuracy < r.Value.accuracy ? l : r).Value;
 
+        CheckAccuracy(newNearestBeacon);
+
+    }
+
+    private void CheckAccuracy(Beacon detectedBeacon)
+    {
+        if (beaconsQueue.Count >= capacity)
+        {
+            Beacon removedBeacon = beaconsQueue.Dequeue();
+        }
+
+        //Add Accuracy
+        beaconsQueue.Enqueue(detectedBeacon);
+
+        //Calculate Accuracy
+        Dictionary<Beacon, int> accuracies = new Dictionary<Beacon, int>();
+
+
+
+        foreach (Beacon beacon in beaconsQueue.ToList())
+        {
+            if (!accuracies.ContainsKey(beacon))
+                accuracies.Add(beacon, 0);
+
+            accuracies[beacon]++;
+        }
+
+        Beacon newNearestBeacon = detectedBeacon;
+        foreach (KeyValuePair<Beacon, int> beaconAccuracy in accuracies)
+        {
+            if (beaconAccuracy.Value > accuracies[newNearestBeacon])
+                newNearestBeacon = beaconAccuracy.Key;
+        }
+
         // If nearest beacon changed
-        if(newNearestBeacon != null && (nearestBeacon == null || newNearestBeacon.regionName != nearestBeacon.regionName))
+        if (newNearestBeacon != null && (nearestBeacon == null || newNearestBeacon.regionName != nearestBeacon.regionName))
         {
             // Launch event
             ClosestBeaconChangedEvent(newNearestBeacon.regionName);
         }
 
         nearestBeacon = newNearestBeacon;
+
     }
+
 }
