@@ -18,7 +18,7 @@ public class BeaconController : MonoBehaviour
     Dictionary<string, Beacon> beaconsDict = new Dictionary<string, Beacon>();
     Beacon nearestBeacon;
 
-    public int capacity = 10;
+    public int capacity = 11;
     Queue<Beacon> beaconsQueue; //Use to calculate beacon detection accuracy
 
     private void Start()
@@ -132,6 +132,9 @@ public class BeaconController : MonoBehaviour
             if (beaconAccuracy.Value > accuracies[newNearestBeacon])
                 newNearestBeacon = beaconAccuracy.Key;
         }
+
+        if (accuracies[newNearestBeacon] < capacity / 2f)
+            return;
 
         // If nearest beacon changed
         if (newNearestBeacon != null && (nearestBeacon == null || newNearestBeacon.regionName != nearestBeacon.regionName))
