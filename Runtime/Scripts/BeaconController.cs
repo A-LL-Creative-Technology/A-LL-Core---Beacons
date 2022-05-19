@@ -67,9 +67,6 @@ public class BeaconController : MonoBehaviour
         if (beacons.Length == 0)
             return; //No beacons detected
 
-        if (nearestBeacon == null)
-            nearestBeacon = beacons[0];
-
         Beacon newNearestBeacon = beacons[0];
 
         foreach (Beacon beacon in beacons)
@@ -84,7 +81,7 @@ public class BeaconController : MonoBehaviour
         if (newNearestBeacon.accuracy < 0)
             return; //On iOS, negative accuracy means that the beacon is not detected
 
-        if ((newNearestBeacon.accuracy < nearestBeacon.accuracy && !newNearestBeacon.regionName.Equals(nearestBeacon.regionName)) || nearestBeacon.accuracy < 0)
+        if (nearestBeacon == null || (newNearestBeacon.accuracy < nearestBeacon.accuracy && !newNearestBeacon.regionName.Equals(nearestBeacon.regionName)) || nearestBeacon.accuracy < 0)
         {
             //New beacon detected
             ClosestBeaconChangedEvent(newNearestBeacon.regionName);
