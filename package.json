@@ -1,6 +1,6 @@
 {
   "name": "com.all.core.beacons",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "displayName": "A-LL Core - Beacons",
   "description": "This is the Beacons core package of A-LL Creative Technology mobile Unity Framework",
   "unity": "2019.1",

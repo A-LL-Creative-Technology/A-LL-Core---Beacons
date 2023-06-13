@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Android;
 
 public class BeaconController : MonoBehaviour
 {
@@ -21,6 +22,26 @@ public class BeaconController : MonoBehaviour
     public int capacity = 11;
     Queue<Beacon> beaconsQueue; //Use to calculate beacon detection accuracy
 
+    private void Awake()
+    {
+#if UNITY_2020_2_OR_NEWER
+#if UNITY_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.CoarseLocation)
+          || !Permission.HasUserAuthorizedPermission(Permission.FineLocation)
+          || !Permission.HasUserAuthorizedPermission("android.permission.BLUETOOTH_SCAN")
+          //|| !Permission.HasUserAuthorizedPermission("android.permission.BLUETOOTH_ADVERTISE")
+          || !Permission.HasUserAuthorizedPermission("android.permission.BLUETOOTH_CONNECT"))
+            Permission.RequestUserPermissions(new string[] {
+            Permission.CoarseLocation,
+            Permission.FineLocation,
+            "android.permission.BLUETOOTH_SCAN",
+            //"android.permission.BLUETOOTH_ADVERTISE",
+            "android.permission.BLUETOOTH_CONNECT"
+        });
+#endif
+#endif
+    }
+    
     private void Start()
     {
         beaconsQueue = new Queue<Beacon>(capacity);
